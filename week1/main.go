@@ -20,7 +20,7 @@ func removeIndexInSlice[T any](s1 []T, i int) ([]T, T, error) {
 		for j := 0; j < len(s1); j++ {
 			s2[j] = s1[j]
 		}
-		return s2, deletedEle, nil
+		s1 = s2
 	}
 	return s1, deletedEle, nil
 }
