@@ -3,7 +3,7 @@ package main
 func main() {
 }
 
-func removeIndex[T any](s1 []T, i int) []T {
+func removeIndexInSlice[T any](s1 []T, i int) []T {
 	if i < 0 || i > len(s1) || len(s1) <= 1 {
 		return s1
 	}
