@@ -1,26 +1,36 @@
 import { Account } from "@/dto/account";
 import { useEffect, useState } from "react";
-import { Backdrop, Fade, Modal } from "@mui/material";
+import { Backdrop, Button, Fade, IconButton, InputAdornment, Modal, TextField } from "@mui/material";
 import { Box } from "@mui/system";
+import { IoMdCloseCircle } from "react-icons/io";
 
 interface EditModalProps {
     open: boolean;
     accountInfo: Account;
-    onClose: boolean;
-    onFinish: (account: Account) => void;
+    onClose: () => void;
+    onFinish: (name: string, birth: string, about: string) => void;
 }
 
 export default function EditModal({ open, accountInfo, onClose, onFinish }: EditModalProps) {
-    const [account, setAccount] = useState<Account>(accountInfo);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    const [name, setName] = useState<string>("");
+    const [birth, setBirth] = useState<string>("");
+    const [about, setAbout] = useState<string>("");
 
     useEffect(() => {
         setIsModalOpen(open);
     }, [open]);
 
     useEffect(() => {
-        setAccount(accountInfo);
+        initInfo(accountInfo);
     }, [accountInfo]);
+
+    const initInfo = (account: Account) => {
+        setName(account.name);
+        setBirth(account.birth);
+        setAbout(account.about);
+    };
 
     return (
         <Modal
@@ -46,7 +56,72 @@ export default function EditModal({ open, accountInfo, onClose, onFinish }: Edit
                         outline: "none",
                     }}
                 >
-                    <div className="w-full h-full p-4 bg-white rounded-2xl shadow-2xl flex flex-col justify-center items-center"></div>
+                    <div className="w-full h-full p-4 bg-white rounded-2xl shadow-2xl flex flex-col justify-center items-center space-y-2">
+                        <TextField
+                            autoComplete="off"
+                            fullWidth
+                            label="Name"
+                            variant="outlined"
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {name.length > 0 ? (
+                                                <IconButton
+                                                    tabIndex={-1}
+                                                    onClick={() => {
+                                                        setName("");
+                                                    }}
+                                                >
+                                                    <IoMdCloseCircle />
+                                                </IconButton>
+                                            ) : (
+                                                <></>
+                                            )}
+                                        </InputAdornment>
+                                    ),
+                                },
+                            }}
+                            value={name}
+                            onChange={event => {
+                                setName(event.target.value.trim());
+                            }}
+                        />
+                        <TextField
+                            autoComplete="off"
+                            fullWidth
+                            label="Birth"
+                            variant="outlined"
+                            value={birth}
+                            onChange={event => {
+                                setName(event.target.value.trim());
+                            }}
+                        />
+                        <TextField
+                            autoComplete="off"
+                            fullWidth
+                            label="About"
+                            variant="outlined"
+                            value={about}
+                            onChange={event => {
+                                setName(event.target.value.trim());
+                            }}
+                        />
+                        <Button fullWidth variant="contained">
+                            Confirm
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="warning"
+                            onClick={() => {
+                                onClose();
+                                initInfo(accountInfo);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
                 </Box>
             </Fade>
         </Modal>

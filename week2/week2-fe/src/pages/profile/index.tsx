@@ -1,15 +1,19 @@
 import { FaUserCircle } from "react-icons/fa";
 import { useState } from "react";
-import { Account } from "@/dto/account";
+import { Account, getDefaultAccount } from "@/dto/account";
 import { useRouter } from "next/router";
 import { Button } from "@mui/material";
 import LoadingModal from "@/pages/profile/LoadingModal";
+import EditModal from "@/pages/profile/EditModal";
 
 export default function ProfilePage() {
     const router = useRouter();
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [account, setAccount] = useState<Account>();
+    const [account, setAccount] = useState<Account>(getDefaultAccount());
+
+    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+    const [editing, setEditing] = useState<boolean>(false);
 
     return (
         <>
@@ -30,29 +34,35 @@ export default function ProfilePage() {
                 >
                     <FaUserCircle size={64} color={"#0ea5e9"} />
                     <div className="w-full h-full flex flex-col space-y-2">
-                        <div className="flex space-x-2">
+                        <div className="flex justify-between">
                             <span className="font-bold">Email</span>
-                            <span>{account?.email}</span>
+                            <span>{account.email}</span>
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex justify-between">
                             <span className="font-bold">Name</span>
-                            <span>{account?.name}</span>
+                            <span>{account.name}</span>
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex justify-between">
                             <span className="font-bold">Birth</span>
-                            <span>{account?.birth}</span>
+                            <span>{account.birth}</span>
                         </div>
-                        <div className="flex flex-col space-x-2">
+                        <div className="flex flex-col space-y-2">
                             <span className="font-bold">About</span>
-                            <span>{account?.about}</span>
+                            <span>{account.about}</span>
                         </div>
                     </div>
-                    <Button fullWidth variant="contained">
+                    <Button fullWidth variant="contained" disabled={editing} onClick={() => setIsEditModalOpen(true)}>
                         Edit
                     </Button>
                 </div>
             </div>
             <LoadingModal open={loading} />
+            <EditModal
+                open={isEditModalOpen}
+                accountInfo={account}
+                onClose={() => setIsEditModalOpen(false)}
+                onFinish={(name, birth, about) => {}}
+            />
         </>
     );
 }
