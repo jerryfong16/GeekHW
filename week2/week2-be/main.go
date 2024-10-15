@@ -7,8 +7,6 @@ import (
 	"fzy.com/geek-hw-week2/repository/dao"
 	"fzy.com/geek-hw-week2/service"
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -45,15 +43,18 @@ func initServer() *gin.Engine {
 		AllowOriginFunc: func(origin string) bool {
 			return true
 		},
-		MaxAge: 12 * time.Hour,
+		ExposeHeaders: []string{"x-jwt"},
+		MaxAge:        12 * time.Hour,
 	}))
 
-	// configure session
-	server.Use(sessions.Sessions("sid", cookie.NewStore([]byte("geek_hw"))))
+	// configure login session middleware
+	//server.Use(sessions.Sessions("sid", cookie.NewStore([]byte("geek_hw"))))
+	//loginMiddleware := &middleware.LoginMiddlewareBuilder{}
+	//server.Use(loginMiddleware.CheckLogin())
 
-	// configure login middleware
-	loginMiddleware := &middleware.LoginMiddlewareBuilder{}
-	server.Use(loginMiddleware.CheckLogin())
+	// configure login jwt middleware
+	loginJWTMiddleware := &middleware.LoginJWTMiddlewareBuilder{}
+	server.Use(loginJWTMiddleware.CheckLogin())
 
 	return server
 }
