@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fzy.com/geek-hw-week2/config"
 	"fzy.com/geek-hw-week2/controller"
 	"fzy.com/geek-hw-week2/controller/middleware"
 	"fzy.com/geek-hw-week2/repository"
@@ -21,7 +22,7 @@ func main() {
 }
 
 func initDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open("root:admin111@tcp(localhost:3306)/geek_hw"))
+	db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
 	if err != nil {
 		panic("fail to connect database")
 	}
