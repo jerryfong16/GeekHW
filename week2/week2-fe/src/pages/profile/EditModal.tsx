@@ -94,7 +94,7 @@ export default function EditModal({ open, accountInfo, onClose, onFinish }: Edit
                             variant="outlined"
                             value={birth}
                             onChange={event => {
-                                setName(event.target.value.trim());
+                                setBirth(event.target.value.trim());
                             }}
                         />
                         <TextField
@@ -104,10 +104,17 @@ export default function EditModal({ open, accountInfo, onClose, onFinish }: Edit
                             variant="outlined"
                             value={about}
                             onChange={event => {
-                                setName(event.target.value.trim());
+                                setAbout(event.target.value.trim());
                             }}
                         />
-                        <Button fullWidth variant="contained">
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            onClick={() => {
+                                onFinish(name, birth, about);
+                                onClose();
+                            }}
+                        >
                             Confirm
                         </Button>
                         <Button

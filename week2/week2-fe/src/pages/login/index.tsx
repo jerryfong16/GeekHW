@@ -5,6 +5,7 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import { useEffect, useRef, useState } from "react";
 import { IoEyeOff } from "react-icons/io5";
 import { IoMdCloseCircle, IoMdEye } from "react-icons/io";
+import { API_URL } from "@/constants";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -16,6 +17,9 @@ export default function LoginPage() {
     const passwordTextFieldRef = useRef<HTMLInputElement | null>(null);
 
     const [waiting, setWaiting] = useState<boolean>(false);
+
+    const [hasError, setHasError] = useState<boolean>(false);
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
         usernameTextFieldGetFocused();
@@ -38,8 +42,37 @@ export default function LoginPage() {
     };
 
     const onLogin = () => {
-        console.log(username);
-        console.log(password);
+        setWaiting(true);
+        fetch(`${API_URL}/account/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: username,
+                password,
+            }),
+        })
+            .then(resp => {
+                if (resp.ok) {
+                    const jwt = resp.headers.get("x-jwt");
+                    if (jwt === null) {
+                        displayError("Fail to Login, Token Not Found");
+                        return;
+                    }
+                    localStorage.setItem("token", jwt);
+                    router.replace("/profile").catch(console.log);
+                } else {
+                    displayError("Fail to Login");
+                }
+            })
+            .catch(error => displayError("Fail to send request"))
+            .finally(() => {
+                setWaiting(false);
+            });
+    };
+
+    const displayError = (info: string) => {
+        setHasError(true);
+        setError(info);
     };
 
     return (
@@ -93,7 +126,7 @@ export default function LoginPage() {
                         }}
                         value={username}
                         onChange={event => {
-                            if (event.target.value.length >= 16) {
+                            if (event.target.value.length >= 32) {
                                 return;
                             }
                             setUsername(event.target.value.trim());
@@ -150,9 +183,16 @@ export default function LoginPage() {
                             setPassword(event.target.value.trim());
                         }}
                     />
-                    <Button fullWidth variant="contained" onClick={() => onLogin()}>
+                    <Button fullWidth variant="contained" disabled={waiting} onClick={() => onLogin()}>
                         Login
                     </Button>
+                    {hasError ? (
+                        <div className="w-full flex justify-items-start">
+                            <span className="text-red-500">{error}</span>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
                     <div className="w-full px-2 flex justify-end">
                         <span
                             className="
