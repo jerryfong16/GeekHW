@@ -39,11 +39,12 @@ func initServer() *gin.Engine {
 	// configure CORS
 	server.Use(cors.New(cors.Config{
 		AllowCredentials: true,
-		AllowHeaders:     []string{"Content-Type"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowOriginFunc: func(origin string) bool {
 			return true
 		},
 		ExposeHeaders: []string{"x-jwt"},
+		AllowMethods:  []string{"OPTIONS", "POST", "DELETE", "PUT", "GET"},
 		MaxAge:        12 * time.Hour,
 	}))
 
