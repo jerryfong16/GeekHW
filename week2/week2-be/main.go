@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fzy.com/geek-hw-week2/repository/cache"
+	"github.com/redis/go-redis/v9"
 	"net/http"
 	"time"
 
@@ -18,8 +20,9 @@ import (
 
 func main() {
 	db := initDB()
+	redisCache := initRedis()
 	server := initServer()
-	initWebControllers(db, server)
+	initWebControllers(db, redisCache, server)
 	server.Run(":8080")
 }
 
@@ -34,6 +37,12 @@ func initDB() *gorm.DB {
 	}
 
 	return db
+}
+
+func initRedis() redis.Cmdable {
+	return redis.NewClient(&redis.Options{
+		Addr: config.Config.Redis.Addr,
+	})
 }
 
 func initServer() *gin.Engine {
@@ -67,9 +76,10 @@ func initServer() *gin.Engine {
 	return server
 }
 
-func initWebControllers(db *gorm.DB, server *gin.Engine) {
+func initWebControllers(db *gorm.DB, redisCache redis.Cmdable, server *gin.Engine) {
 	accountDAO := dao.NewAccountDAO(db)
-	accountRepository := repository.NewAccountRepository(accountDAO)
+	accountCache := cache.NewAccountCache(redisCache)
+	accountRepository := repository.NewAccountRepository(accountDAO, accountCache)
 	accountService := service.NewAccountService(accountRepository)
 	accountController := controller.NewAccountController(accountService)
 	accountController.RegisterRoutes(server)

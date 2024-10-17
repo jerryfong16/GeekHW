@@ -7,7 +7,10 @@ spec:
     app: webook-redis
   ports:
     - protocol: TCP
+#      k8s 内部访问接口
       port: 6379
+#      外部访问端口，[30000, 32767]
+      nodePort: 32379
       targetPort: 6379
   type: NodePort
   

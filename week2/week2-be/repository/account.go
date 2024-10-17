@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"fzy.com/geek-hw-week2/domain"
+	"fzy.com/geek-hw-week2/repository/cache"
 	"fzy.com/geek-hw-week2/repository/dao"
+	"log"
 	"time"
 )
 
@@ -13,12 +15,14 @@ var (
 )
 
 type AccountRepository struct {
-	dao *dao.AccountDAO
+	dao   *dao.AccountDAO
+	cache *cache.AccountCache
 }
 
-func NewAccountRepository(dao *dao.AccountDAO) *AccountRepository {
+func NewAccountRepository(dao *dao.AccountDAO, cache *cache.AccountCache) *AccountRepository {
 	return &AccountRepository{
-		dao: dao,
+		dao:   dao,
+		cache: cache,
 	}
 }
 
@@ -45,11 +49,20 @@ func (accountRepository *AccountRepository) Update(ctx context.Context, account 
 }
 
 func (accountRepository *AccountRepository) FindById(ctx context.Context, id int64) (domain.Account, error) {
-	account, err := accountRepository.dao.FindById(ctx, id)
+	cacheAccount, err := accountRepository.cache.Get(ctx, id)
+	if err == nil {
+		return cacheAccount, err
+	}
+
+	dbAccount, err := accountRepository.dao.FindById(ctx, id)
 	if err != nil {
 		return domain.Account{}, err
 	}
-	return accountRepository.toDomainAccount(account), err
+	account := accountRepository.toDomainAccount(dbAccount)
+	if err := accountRepository.cache.Set(ctx, account); err != nil {
+		log.Println(err)
+	}
+	return account, err
 }
 
 func (accountRepository *AccountRepository) FindByEmail(ctx context.Context, email string) (domain.Account, error) {
