@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	"time"
+
 	"fzy.com/geek-hw-week2/config"
 	"fzy.com/geek-hw-week2/controller"
 	"fzy.com/geek-hw-week2/controller/middleware"
@@ -11,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"time"
 )
 
 func main() {
@@ -57,6 +59,10 @@ func initServer() *gin.Engine {
 	// configure login jwt middleware
 	loginJWTMiddleware := &middleware.LoginJWTMiddlewareBuilder{}
 	server.Use(loginJWTMiddleware.CheckLogin())
+
+	server.GET("/", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "Welcome")
+	})
 
 	return server
 }
