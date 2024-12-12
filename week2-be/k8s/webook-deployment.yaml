@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webook-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webook-service
+  template:
+    metadata:
+      name: webook-service
+      labels:
+        app: webook-service
+    spec:
+      containers:
+        - name: webook-service
+          image: fzy/webook:v0.0.1
+          ports:
+            - containerPort: 8080
