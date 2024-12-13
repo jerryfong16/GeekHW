@@ -14,7 +14,8 @@ import (
 type UserHandler struct {
 	emailRegExp    *regexp.Regexp
 	passwordRegExp *regexp.Regexp
-	svc            service.UserService
+	userSvc        service.UserService
+	codeSvc        service.CodeService
 }
 
 func (handler *UserHandler) RegisterRoutes(server *gin.Engine) {
@@ -23,6 +24,85 @@ func (handler *UserHandler) RegisterRoutes(server *gin.Engine) {
 	g.POST("/login", handler.LoginJWT)
 	g.POST("/edit", handler.Edit)
 	g.GET("/profile", handler.Profile)
+
+	// 手机验证码登录相关功能
+	g.POST("/login_sms/code/send", handler.SendSMSLoginCode)
+	g.POST("/login_sms", handler.LoginSMS)
+}
+
+func (handler *UserHandler) LoginSMS(ctx *gin.Context) {
+	type Req struct {
+		Phone string `json:"phone"`
+		Code  string `json:"code"`
+	}
+	var req Req
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
+
+	ok, err := handler.codeSvc.Verify(ctx, "login", req.Phone, req.Code)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统异常",
+		})
+		return
+	}
+	if !ok {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "验证码不对，请重新输入",
+		})
+		return
+	}
+	u, err := handler.userSvc.FindOrCreate(ctx, req.Phone)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		return
+	}
+	handler.setJWTToken(ctx, u.Id)
+	ctx.JSON(http.StatusOK, Result{
+		Msg: "登录成功",
+	})
+}
+
+func (handler *UserHandler) SendSMSLoginCode(ctx *gin.Context) {
+	type Req struct {
+		Phone string `json:"phone"`
+	}
+	var req Req
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
+	// 你这边可以校验 Req
+	if req.Phone == "" {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "请输入手机号码",
+		})
+		return
+	}
+	err := handler.codeSvc.Send(ctx, "login", req.Phone)
+	switch {
+	case err == nil:
+		ctx.JSON(http.StatusOK, Result{
+			Msg: "发送成功",
+		})
+	case errors.Is(err, service.ErrCodeSendTooMany):
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "短信发送太频繁，请稍后再试",
+		})
+	default:
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+		// 补日志的
+	}
 }
 
 func (handler *UserHandler) Signup(ctx *gin.Context) {
@@ -62,7 +142,7 @@ func (handler *UserHandler) Signup(ctx *gin.Context) {
 		return
 	}
 
-	err = handler.svc.Signup(ctx, domain.User{
+	err = handler.userSvc.Signup(ctx, domain.User{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -93,7 +173,7 @@ func (handler *UserHandler) LoginJWT(ctx *gin.Context) {
 	if err := ctx.Bind(&req); err != nil {
 		return
 	}
-	u, err := handler.svc.Login(ctx, req.Email, req.Password)
+	u, err := handler.userSvc.Login(ctx, req.Email, req.Password)
 	switch {
 	case err == nil:
 		handler.setJWTToken(ctx, u.Id)
@@ -146,7 +226,7 @@ func (handler *UserHandler) Edit(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "生日格式不对")
 		return
 	}
-	err = handler.svc.UpdateNonSensitiveInfo(ctx, domain.User{
+	err = handler.userSvc.UpdateNonSensitiveInfo(ctx, domain.User{
 		Id:       uc.Uid,
 		Nickname: req.Nickname,
 		Birthday: birthday,
@@ -166,7 +246,7 @@ func (handler *UserHandler) Profile(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	u, err := handler.svc.FindById(ctx, uc.Uid)
+	u, err := handler.userSvc.FindById(ctx, uc.Uid)
 	if err != nil {
 		ctx.String(http.StatusOK, "系统异常")
 		return
@@ -185,10 +265,11 @@ func (handler *UserHandler) Profile(ctx *gin.Context) {
 	})
 }
 
-func NewUserHandler(svc service.UserService) *UserHandler {
+func NewUserHandler(userSvc service.UserService, codeSvc service.CodeService) *UserHandler {
 	return &UserHandler{
 		emailRegExp:    regexp.MustCompile("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$", regexp.None),
 		passwordRegExp: regexp.MustCompile(`^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`, regexp.None),
-		svc:            svc,
+		userSvc:        userSvc,
+		codeSvc:        codeSvc,
 	}
 }
