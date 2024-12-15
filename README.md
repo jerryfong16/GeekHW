@@ -21,10 +21,10 @@ type LocalCodeCacheStore struct {
 }
 
 // 使用 map 做为本地缓存
-// 使用 RWLock 保证并发读写安全，读锁非互斥，写锁互斥
+// 使用 sync.Mutex 保证并发读写安全
 // 添加建议 cleanup 算法：在 Set 时，如果 map 中元素个数为 128 的倍数，则进行遍历删除无用键值对
 type LocalCodeCache struct {
-	lock  sync.RWMutex
+	lock  sync.Mutex
 	store map[string]*LocalCodeCacheStore
 }
 
@@ -50,8 +50,8 @@ func (cache *LocalCodeCache) Set(ctx context.Context, businessType, phone, code 
 }
 
 func (cache *LocalCodeCache) Verify(ctx context.Context, businessType, phone, code string) (bool, error) {
-	cache.lock.RLock()
-	defer cache.lock.RUnlock()
+	cache.lock.Lock()
+	defer cache.lock.Unlock()
 	key := cache.key(businessType, phone)
 	if v, ok := cache.store[key]; ok {
 		if v.Exp <= time.Now().UnixMilli() {
