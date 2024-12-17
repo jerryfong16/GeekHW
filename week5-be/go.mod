@@ -1,4 +1,4 @@
-module geek-hw-week4
+module geek-hw-week5
 
 go 1.22.1
 
