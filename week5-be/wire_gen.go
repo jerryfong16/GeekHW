@@ -7,12 +7,12 @@
 package main
 
 import (
-	"geek-hw-week4/internal/repository"
-	"geek-hw-week4/internal/repository/cache"
-	"geek-hw-week4/internal/repository/dao"
-	"geek-hw-week4/internal/service"
-	"geek-hw-week4/internal/web"
-	"geek-hw-week4/ioc"
+	"geek-hw-week5/internal/repository"
+	"geek-hw-week5/internal/repository/cache"
+	"geek-hw-week5/internal/repository/dao"
+	"geek-hw-week5/internal/service"
+	"geek-hw-week5/internal/web"
+	"geek-hw-week5/ioc"
 	"github.com/gin-gonic/gin"
 )
 

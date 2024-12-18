@@ -30,7 +30,12 @@ type RedisCodeCache struct {
 }
 
 func (cache *RedisCodeCache) Set(ctx context.Context, businessType, phone, code string) error {
-	res, err := cache.cmd.Eval(ctx, luaSetCode, []string{cache.key(businessType, phone)}, code).Int()
+	res, err := cache.cmd.Eval(
+		ctx,
+		luaSetCode,
+		[]string{cache.key(businessType, phone)},
+		code,
+	).Int()
 	if err != nil {
 		// 调用 redis 出了问题
 		return err
@@ -143,8 +148,8 @@ func (cache *LocalCodeCache) cleanup() {
 }
 
 func NewCodeCache(cmd redis.Cmdable) CodeCache {
-	//return &RedisCodeCache{cmd: cmd}
-	return &LocalCodeCache{
-		store: make(map[string]*LocalCodeCacheStore),
-	}
+	return &RedisCodeCache{cmd: cmd}
+	//return &LocalCodeCache{
+	//	store: make(map[string]*LocalCodeCacheStore),
+	//}
 }

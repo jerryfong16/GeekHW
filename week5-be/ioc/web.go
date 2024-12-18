@@ -1,8 +1,8 @@
 package ioc
 
 import (
-	"geek-hw-week4/internal/web"
-	"geek-hw-week4/internal/web/middleware"
+	"geek-hw-week5/internal/web"
+	"geek-hw-week5/internal/web/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"

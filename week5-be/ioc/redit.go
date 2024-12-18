@@ -1,7 +1,7 @@
 package ioc
 
 import (
-	"geek-hw-week4/config"
+	"geek-hw-week5/config"
 	"github.com/redis/go-redis/v9"
 )
 

@@ -1,6 +1,6 @@
 package ioc
 
-import "geek-hw-week4/internal/service/sms"
+import "geek-hw-week5/internal/service/sms"
 
 func InitLocalSMSService() sms.SMSService {
 	return sms.NewLocalSMSService()

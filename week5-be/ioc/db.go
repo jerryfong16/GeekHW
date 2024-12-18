@@ -1,8 +1,8 @@
 package ioc
 
 import (
-	"geek-hw-week4/config"
-	"geek-hw-week4/internal/repository/dao"
+	"geek-hw-week5/config"
+	"geek-hw-week5/internal/repository/dao"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

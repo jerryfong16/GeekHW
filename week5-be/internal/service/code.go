@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"geek-hw-week4/internal/repository"
-	"geek-hw-week4/internal/service/sms"
+	"geek-hw-week5/internal/repository"
+	"geek-hw-week5/internal/service/sms"
 	"math/rand"
 )
 

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"geek-hw-week4/internal/repository/cache"
+	"geek-hw-week5/internal/repository/cache"
 )
 
 var ErrCodeVerifyTooMany = cache.ErrCodeVerifyTooMany

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"geek-hw-week4/internal/web"
+	"geek-hw-week5/internal/web"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"log"

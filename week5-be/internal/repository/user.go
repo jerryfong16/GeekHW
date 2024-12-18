@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"geek-hw-week4/internal/domain"
-	"geek-hw-week4/internal/repository/cache"
-	"geek-hw-week4/internal/repository/dao"
+	"geek-hw-week5/internal/domain"
+	"geek-hw-week5/internal/repository/cache"
+	"geek-hw-week5/internal/repository/dao"
 	"log"
 	"time"
 )
@@ -60,7 +60,7 @@ func (repository *CachedUserRepository) FindById(ctx context.Context, id int64) 
 
 	user, err := repository.dao.FindById(ctx, id)
 	if err != nil {
-		return domain.User{}, nil
+		return domain.User{}, ErrUserNotFound
 	}
 	domainUser = repository.toDomain(user)
 
@@ -80,6 +80,7 @@ func (repository *CachedUserRepository) toDomain(u dao.User) domain.User {
 		AboutMe:  u.AboutMe,
 		Nickname: u.Nickname,
 		Birthday: time.UnixMilli(u.Birthday),
+		Ctime:    time.UnixMilli(u.Ctime),
 	}
 }
 

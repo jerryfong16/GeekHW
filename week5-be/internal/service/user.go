@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"errors"
-	"geek-hw-week4/internal/domain"
-	"geek-hw-week4/internal/repository"
+	"geek-hw-week5/internal/domain"
+	"geek-hw-week5/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
