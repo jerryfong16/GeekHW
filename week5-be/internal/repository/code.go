@@ -5,6 +5,7 @@ import (
 	"geek-hw-week5/internal/repository/cache"
 )
 
+var ErrCodeSendTooMany = cache.ErrCodeSendTooMany
 var ErrCodeVerifyTooMany = cache.ErrCodeVerifyTooMany
 
 type CodeRepository interface {
